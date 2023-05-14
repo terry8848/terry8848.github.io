@@ -1,0 +1,120 @@
+using System;
+
+class Game
+{
+    static void Main()
+    {
+        Console.WriteLine("欢迎来到打斗游戏！");
+
+        // 创建主角和敌人
+        Character player = new Character("arelll", 100);
+        Character enemy = new Character("fuu", 80);
+
+        // 游戏循环
+        while (player.IsAlive() && enemy.IsAlive())
+        {
+            Console.WriteLine("\n请选择你的行动：");
+            Console.WriteLine("1. 攻击敌人");
+            Console.WriteLine("2. 防御");
+            Console.WriteLine("3. 逃跑");
+
+            // 获取玩家的选择
+            int choice = GetChoice(1, 3);
+
+            switch (choice)
+            {
+                case 1:
+                    // 主角攻击敌人
+                    player.Attack(enemy);
+                    break;
+                case 2:
+                    // 主角防御
+                    player.Defend();
+                    break;
+                case 3:
+                    // 主角逃跑
+                    Console.WriteLine("你逃跑了！");
+                    return;
+            }
+
+            // 敌人攻击主角
+            enemy.Attack(player);
+
+            // 显示主角和敌人的状态
+            Console.WriteLine("你的状态：");
+            player.ShowStatus();
+            Console.WriteLine("敌人状态：");
+            enemy.ShowStatus();
+        }
+
+        // 游戏结束
+        if (player.IsAlive())
+        {
+            Console.WriteLine("你赢得了胜利！");
+        }
+        else
+        {
+            Console.WriteLine("你被敌人打败了！");
+        }
+    }
+
+    // 获取用户输入的选择
+    static int GetChoice(int min, int max)
+    {
+        int choice = 0;
+        bool isValidChoice = false;
+
+        while (!isValidChoice)
+        {
+            Console.Write("请输入选项的编号：");
+            string input = Console.ReadLine();
+
+            if (int.TryParse(input, out choice) && choice >= min && choice <= max)
+            {
+                isValidChoice = true;
+            }
+            else
+            {
+                Console.WriteLine("无效的选项，请重新输入！");
+            }
+        }
+
+        return choice;
+    }
+}
+
+class Character
+{
+    private string name;
+    private int health;
+    private bool isDefending;
+
+    public Character(string name, int health)
+    {
+        this.name = name;
+        this.health = health;
+        this.isDefending = false;
+    }
+
+    public void Attack(Character enemy)
+    {
+        int damage = CalculateDamage();
+        enemy.TakeDamage(damage);
+
+        Console.WriteLine($"{name}攻击了{enemy.GetName()}，造成了{damage}点伤害！");
+    }
+
+    public void Defend()
+    {
+        isDefending = true;
+        Console.WriteLine($"{name}进入防御状态，下回合受到的伤害减少。");
+    }
+
+    public void TakeDamage(int damage)
+    {
+        if (isDefending)
+        {
+            damage /= 2; // 防御状态下伤害减半
+            isDefending = false; // 防御状态只持续一回合
+        }
+
